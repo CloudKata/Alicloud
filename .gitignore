@@ -1,0 +1,17 @@
+# Terraform #
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+
+# Ansible #
+*.retry
+*/*.retry
+
+### OSX ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## VS CODE ##
+.vscode

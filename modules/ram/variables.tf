@@ -1,6 +1,6 @@
-variable "account_id" {
-	default = "5104523510172198"
-}
+variable "alicloud_access_key" {}
+variable "alicloud_secret_key" {}
+
 variable "alicloud_ram_users" {
 	default = ["dev1", "dev2", "admin1"]
 }
@@ -14,35 +14,40 @@ variable "ram_user_emailid" {
 }
 
 variable "ram_group_name" {
-	default = "users"
+	default = "console-users"
 }
 
 variable "service_names" {
 	default = ["ecs.aliyuncs.com", "apigateway.aliyuncs.com"]
 }
 
+variable "role_name" {
+	default = "instance-role"
+}
+
 variable "policy_name" {
-	default = []
+	default = "instance-role-policy"
+}
+
+variable "policy_type" {
+	default = "Custom"
 }
 
 variable "policy_action" {
 	default = [
-                "ecs:*"
+                "ecs:*",
                 "vpc:DescribeVpcs",
                 "vpc:DescribeVSwitches"
             ]
 }
 
 variable "policy_resource" {
-	default = "*"
+	default = ["*"]
 }
 variable "policy_effect" {
-	default = "allow"
+	default = "Allow"
 }
 
-variable "role_name" {
-	default = "TF-Role"
-}
-variable "service_names" {
+variable "services" {
 	default = ["ecs.aliyuncs.com", "apigateway.aliyuncs.com"]
 }

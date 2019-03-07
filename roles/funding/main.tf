@@ -37,17 +37,8 @@ module "ecs-instance" {
   key_name = "${alicloud_key_pair.key.key_name}"
 }
 
-module "slb-int" {
-     source = "alibaba/slb/alicloud"
-
-     vswitch_id = "${var.vswitch_id}"
-
-     name = "slb-int-${var.group_name}"
-     
-     internal = true
-     bandwidth = 5
-     spec = "slb.s1.small"
-
-     instances = "${module.ecs-instance.instance_ids}"
-
-  }
+module "slb_funding" {
+  source = "../../modules/slb"
+  instances = "${module.ecs-instance.instance_ids}"
+  slb_name = "slb-${var.group_name}"
+}

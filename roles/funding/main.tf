@@ -1,9 +1,32 @@
+# Collect Instance Types available in the vpc zone
+
+data "alicloud_instance_types" "default" {
+  cpu_core_count = "${var.cpu_core_count}"
+  memory_size    = "${var.memory_size}"
+  instance_type_family = "${var.instance_type_family}"
+}
+
+# Collect zone data
+
+data "alicloud_zones" main {
+  available_resource_creation = "VSwitch"
+  multi = true
+  network_type = "Vpc"
+}
+
+# Save zone names in local variable
+
+locals {
+  vpc_azs = "${data.alicloud_zones.main.zones.0.id}, ${data.alicloud_zones.main.zones.1.id}"
+}
+
+# Create Security Group for the instance
 
 module "security-group" {
   source = "alibaba/security-group/alicloud"
 
   vpc_id = "${var.vpc_id}"
-  group_name = "${var.group_name}"
+  group_name = "${var.app_prefix}"
 
   rule_directions = ["ingress"]
   ip_protocols = ["tcp", "tcp", "tcp"]
@@ -12,33 +35,45 @@ module "security-group" {
   port_ranges = "${var.port_ranges}"
 }
 
+# Create instance ssh key pair
+
 resource "alicloud_key_pair" "key" {
-  key_name = "ssh_key_${var.group_name}"
+  key_name = "ssh_key_${var.app_prefix}"
 }
 
-module "ecs-instance" {
-  source = "alibaba/ecs-instance/alicloud"
+# Create vswitch 
 
-  vswitch_id = "${var.vswitch_id}"
-  group_ids = "${module.security-group.security_group_id}"
+resource "alicloud_vswitch" "vswitch" {
+  count = "${length(var.vswitch_cidrs)}"
+  vpc_id = "${var.vpc_id}"
+  name = "${format("vsw-%s-%02d", var.app_prefix, count.index + 1)}"
+  cidr_block = "${var.vswitch_cidrs[count.index]}"
+  availability_zone = "${element(split(", ", local.vpc_azs), count.index)}"
+}
+
+# Create instance batch
+
+resource "alicloud_instance" "funding" {
+  
+  count = "${length(data.alicloud_zones.main.zones)}"
+  security_groups = ["${module.security-group.security_group_id}"]
+  
+  vswitch_id = "${alicloud_vswitch.vswitch.*.id[count.index]}"
+
+  instance_name = "${format("srv-%s-%02d", var.app_prefix, count.index + 1)}"
+  instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
+  host_name = "${format("srv-%s-%02d", var.app_prefix, count.index + 1)}"
   image_id = "${var.image_id}"
-
-  number_of_instances = "${var.instance_count}"
-  instance_name = "${var.group_name}-srv"
   
-  host_name = "$${instance_name}-srv"
-
-  disk_name = "$${instance_name}-data"
-  disk_category = "${var.disk_category}"
-  
-  disk_size = "${var.disk_size}"
-  number_of_disks = "${var.disk_count}"
-  
+  internet_max_bandwidth_out = 10
   key_name = "${alicloud_key_pair.key.key_name}"
+  role_name = "${var.role_name}"
 }
+
+# Create and Attach instances to service load balancer
 
 module "slb_funding" {
   source = "../../modules/slb"
-  instances = "${module.ecs-instance.instance_ids}"
-  slb_name = "slb-${var.group_name}"
+  instances = "${alicloud_instance.funding.*.id}"
+  slb_name = "slb-${var.app_prefix}"
 }

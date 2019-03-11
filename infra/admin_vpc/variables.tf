@@ -34,11 +34,6 @@ variable "sg_port_ranges" {
 	default = ["80/80", "22/22", "443/443"]
 }
 
-# RAM Variables
-
-variable "alicloud_access_key" {}
-variable "alicloud_secret_key" {}
-
 # ECS Instance Variables
 
 variable "instance_count" {

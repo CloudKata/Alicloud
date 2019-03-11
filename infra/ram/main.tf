@@ -14,6 +14,8 @@ module "ram-users" {
   dispnames = "${var.ram_display_names}"
   emails = "${var.ram_user_emailid}"
   group_name = "${var.ram_group_name}"
+  alicloud_access_key = "${var.alicloud_access_key}"
+  alicloud_secret_key = "${var.alicloud_secret_key}"
   
 }
 

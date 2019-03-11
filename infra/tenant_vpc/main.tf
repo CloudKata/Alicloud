@@ -5,12 +5,13 @@ module "vpc" {
    
    vpc_name = "${var.vpc_name}"
    vpc_description = "${var.vpc_name}"
+   vpc_cidr = "${var.vpc_cidr}"
 
-   vswitch_name = "${var.vswitch_name}"
-   vswitch_description = "default"
-   vswitch_cidrs = "${var.vswitch_cidrs}"
+   #vswitch_name = "${var.vswitch_name}"
+   #vswitch_description = "default"
+   #vswitch_cidrs = "${var.vswitch_cidrs}"
 
-   availability_zones = "${var.vpc_az}"
+   availability_zones = "${var.availability_zones}"
 
 }
 
@@ -18,5 +19,5 @@ module "funding" {
 	source = "../../roles/funding"
     
 	vpc_id = "${module.vpc.vpc_id}"
-	vswitch_id = "${module.vpc.vswitch_ids}"
+   role_name = "instance-role"
 }

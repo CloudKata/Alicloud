@@ -8,24 +8,15 @@ module "vpc" {
    
    vpc_name = "${var.vpc_name}"
    vpc_description = "${var.vpc_name}"
-
+   vpc_cidr = "${var.vpc_cidr}"
    vswitch_name = "vswitch-${var.vpc_name}"
    vswitch_description = "Default vswitch for vpc"
    vswitch_cidrs = "${var.vpc_vswitch_cidrs}"
 
    availability_zones = "${var.vpc_az}"
 
-# destination_cidrs = "${var.destination_cidrs}"
-
 }
 
-#Create Users, Groups, Roles, Policy
-
-module "ram" {
-	source = "../../modules/ram"
-  alicloud_access_key = "${var.alicloud_access_key}"
-  alicloud_secret_key = "${var.alicloud_secret_key}"
-}
 
 # Create Management Security Group
 # ================================
@@ -65,7 +56,7 @@ resource "alicloud_key_pair" "key" {
 module "ecs-instance" {
   source = "alibaba/ecs-instance/alicloud"
   
-  group_ids = "${module.security-group.security_group_id}"
+  group_ids = ["${module.security-group.security_group_id}"]
   vswitch_id = "${module.vpc.vswitch_ids}"
 
   image_id = "${var.image_id}"
@@ -74,12 +65,6 @@ module "ecs-instance" {
   instance_name = "mgmt-workstation"
 
   host_name = "tf-admin"
-
-  disk_name = "{instance_name}-data"
-  disk_category = "${var.disk_category}"
-  
-  disk_size = "${var.disk_size}"
-  number_of_disks = "${var.disk_count}"
   
   key_name = "${alicloud_key_pair.key.key_name}"
 

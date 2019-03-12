@@ -10,6 +10,4 @@ variable "availability_zones" {
 	default = ["ap-southeast-5a", "ap-southeast-5b"]
 }
 
-variable "destination_cidrs" {
-	default = ["172.17.1.0/24", "172.17.2.0/24"]
-}
+#variable "zone_id" {}

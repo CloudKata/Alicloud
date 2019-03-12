@@ -75,5 +75,16 @@ resource "alicloud_instance" "funding" {
 module "slb_funding" {
   source = "../../modules/slb"
   instances = "${alicloud_instance.funding.*.id}"
-  slb_name = "slb-${var.app_prefix}"
+  name = "slb-${var.app_prefix}"
 }
+
+#resource "alicloud_pvtz_zone_record" "pvtz_records" {
+#    
+#    zone_id = "${var.zone_id}"
+#    resource_record = "${module.slb_funding.slb_name}"
+#    type = "A"
+#    value = "${module.slb_funding.slb_address}"
+#    ttl = "86400"
+#}
+
+

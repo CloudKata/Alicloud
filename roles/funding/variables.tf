@@ -1,4 +1,5 @@
 variable "vpc_id" {}
+#variable "zone_id" {}
 
 variable "app_prefix" {
 	default = "funding"

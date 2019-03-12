@@ -16,6 +16,7 @@ module "ram-users" {
   group_name = "${var.ram_group_name}"
   alicloud_access_key = "${var.alicloud_access_key}"
   alicloud_secret_key = "${var.alicloud_secret_key}"
+
   
 }
 
@@ -24,6 +25,7 @@ resource "alicloud_ram_group_policy_attachment" "attach" {
   policy_type = "System"
   group_name = "${var.ram_group_name}"
   depends_on = ["module.ram-users"]
+
 }
 
 

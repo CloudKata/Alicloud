@@ -1,4 +1,7 @@
 variable "instances" {
 	default = []
 }
-variable "slb_name" {}
+
+variable "name" {
+	default = "slb-int"
+}

@@ -1,18 +1,18 @@
 # VPC Variables
 
 variable "vpc_name" {
-	default = "vpc-admin"
+	default = "admin-vpc"
 }
 variable "vpc_cidr" {
 	default = "10.10.0.0/16"
 }
 
-variable "vpc_az" {
+variable "vpc_azs" {
 	default = ["ap-southeast-5a", "ap-southeast-5b"]
 }
 
-variable "vpc_vswitch_cidrs" {
-	default = ["10.10.1.0/24", "10.10.2.0/24"]
+variable "vswitch_cidrs" {
+	default = ["10.10.1.0/24"]
 }
 
 # Add tenant vpc CIDRS
@@ -27,6 +27,9 @@ variable "nexthop_ids" {
 	default = []
 }
 
+variable "app_prefix" {
+	default = "admin"
+}
 
 #Security Group Variables
 
@@ -36,23 +39,22 @@ variable "sg_port_ranges" {
 
 # ECS Instance Variables
 
-variable "instance_count" {
-	default = "1"
-}
-
-variable "disk_size" {
-	default = "50"
-}
-
-variable "disk_count" {
-	default = "1"
-}
-
-variable "disk_category" {
-	default = "cloud_ssd"
-}
 variable "image_id" {
 	default = "m-k1aimr39v8k6onvoxmhz"
 }
 
+
+variable "cpu_core_count" {
+	default = 1
+}
+variable "memory_size" {
+	default = 0.5
+}
+variable "instance_type_family" {
+	default = "ecs.t5"
+}
+
+variable "ssl_vpn_ip_pool" {
+	default = "192.168.100.0/24"
+}
 

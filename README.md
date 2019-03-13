@@ -7,7 +7,8 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 1. [Alicloud](https://www.terraform.io/docs/providers/alicloud/index.html)
 2. AWS (To be added)
 
-## Folder Structure
+## Directory Structure
+-----------------------
 
 	├── BaseSetup.tf  =>  This creates the end to end infrastrure as per the Architecture Diagram.
 	├── Cloud_EOD.jpg =>  Sample Infra Architecture used for this setup.
@@ -44,5 +45,6 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 
 
 ## Sample Infrastructure Design
+---------------------------------
 
-![Cloud_EOD.jpg](Cloud_EOD.jpg)
+	![Cloud_EOD.jpg](Cloud_EOD.jpg)

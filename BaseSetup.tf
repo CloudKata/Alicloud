@@ -13,7 +13,7 @@ resource "alicloud_pvtz_zone" "zone" {
 
 resource "alicloud_pvtz_zone_attachment" "zone-attachment" {
     zone_id = "${alicloud_pvtz_zone.zone.id}"
-    vpc_ids = ["${module.admin_vpc.vpc_id}", "${module.tenant_vpc.vpc_id}"]
+    vpc_ids = ["${module.setup_admin_vpc.vpc_id}", "${module.setup_tenant_vpc.vpc_id}"]
 }
 
 

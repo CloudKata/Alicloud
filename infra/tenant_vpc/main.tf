@@ -15,5 +15,5 @@ module "funding" {
     
 	vpc_id = "${module.vpc.vpc_id}"
    role_name = "instance-role"
-#  zone_id = "${var.zone_id}"
+  zone_id = "${var.zone_id}"
 }

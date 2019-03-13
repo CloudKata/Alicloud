@@ -10,4 +10,4 @@ variable "availability_zones" {
 	default = ["ap-southeast-5a", "ap-southeast-5b"]
 }
 
-#variable "zone_id" {}
+variable "zone_id" {}

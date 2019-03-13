@@ -1,6 +1,6 @@
-####################################################
-# Collect Instance Types available in the vpc zone #
-####################################################
+######################################################
+## Collect Instance Types available in the vpc zone ##
+######################################################
 
 data "alicloud_instance_types" "default" {
   cpu_core_count = "${var.cpu_core_count}"
@@ -8,9 +8,9 @@ data "alicloud_instance_types" "default" {
   instance_type_family = "${var.instance_type_family}"
 }
 
-#####################
-# Collect zone data #
-#####################
+#######################
+## Collect zone data ##
+#######################
 
 data "alicloud_zones" main {
   available_resource_creation = "VSwitch"
@@ -24,9 +24,9 @@ locals {
   vpc_azs = "${data.alicloud_zones.main.zones.0.id}, ${data.alicloud_zones.main.zones.1.id}"
 }
 
-#########################
-# Create Management VPC #
-#########################
+###########################
+## Create Management VPC ##
+###########################
 
 module "vpc" {
    source = "alibaba/vpc/alicloud"
@@ -40,9 +40,9 @@ module "vpc" {
 
 }
 
-##################
-# Create vswitch #
-##################
+####################
+## Create vswitch ##
+####################
 
 resource "alicloud_vswitch" "vswitch" {
   count = "${length(var.vswitch_cidrs)}"
@@ -53,9 +53,9 @@ resource "alicloud_vswitch" "vswitch" {
 }
 
 
-####################################
-# Create Management Security Group #
-####################################
+######################################
+## Create Management Security Group ##
+######################################
 
 module "security-group" {
   source = "alibaba/security-group/alicloud"

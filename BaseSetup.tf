@@ -1,25 +1,40 @@
-#module "dns-public" {
-#	source = "infra/dns-public"
-#}
+###################################################################################################################
+# Public and private DNS setup. Private Zone service should be enabled first in alicloud account from web console #
+###################################################################################################################
 
-#resource "alicloud_pvtz_zone" "zone" {
-#   name = "example.int"
-#}
+module "dns-public" {
+	source = "infra/dns-public"
+}
+
+resource "alicloud_pvtz_zone" "zone" {
+   name = "example.int"
+}
 
 
-#resource "alicloud_pvtz_zone_attachment" "zone-attachment" {
-#    zone_id = "${alicloud_pvtz_zone.zone.id}"
-#    vpc_ids = ["${module.admin_vpc.vpc_id}", "${module.tenant_vpc.vpc_id}"]
-#}
+resource "alicloud_pvtz_zone_attachment" "zone-attachment" {
+    zone_id = "${alicloud_pvtz_zone.zone.id}"
+    vpc_ids = ["${module.admin_vpc.vpc_id}", "${module.tenant_vpc.vpc_id}"]
+}
 
-module "setup_adminvpc" {
+
+##################################################################################
+# Modules to setup VPCs for administrative services and client specific services #
+##################################################################################
+
+
+module "setup_admin_vpc" {
 	source = "infra/admin_vpc"
 }
 
 module "setup_tenant_vpc" {
 	source = "infra/tenant_vpc"
-#	zone_id = "${alicloud_pvtz_zone.zone.id}"
+	zone_id = "${alicloud_pvtz_zone.zone.id}"
 }
+
+
+#####################################################################################################
+# Creating users & policies for cloud account access and roles & policies for cloud resource access #
+#####################################################################################################
 
 module "ram" {
   source = "infra/ram"

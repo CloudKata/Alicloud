@@ -76,7 +76,8 @@ module "vpn-gateway" {
     vpc_cidr = "${var.vpc_cidr}"
 }
 
-# Create ssh key for admin servers
+# Create ssh key for admin servers #
+####################################
 
 resource "alicloud_key_pair" "key" {
     key_name = "ssh_key_admin_srv"

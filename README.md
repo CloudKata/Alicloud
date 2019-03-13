@@ -9,6 +9,7 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 
 ## Folder Structure
 
+.
 ├── BaseSetup.tf  =>  This creates the end to end infrastrure as per the Architecture Diagram.
 ├── Cloud_EOD.jpg =>  Sample Infra Architecture used for this setup.
 ├── README.md

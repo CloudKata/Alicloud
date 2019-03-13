@@ -1,5 +1,6 @@
+####################################################
 # Collect Instance Types available in the vpc zone #
-###################################################
+####################################################
 
 data "alicloud_instance_types" "default" {
   cpu_core_count = "${var.cpu_core_count}"
@@ -7,6 +8,7 @@ data "alicloud_instance_types" "default" {
   instance_type_family = "${var.instance_type_family}"
 }
 
+#####################
 # Collect zone data #
 #####################
 
@@ -22,6 +24,7 @@ locals {
   vpc_azs = "${data.alicloud_zones.main.zones.0.id}, ${data.alicloud_zones.main.zones.1.id}"
 }
 
+#########################
 # Create Management VPC #
 #########################
 
@@ -37,6 +40,7 @@ module "vpc" {
 
 }
 
+##################
 # Create vswitch #
 ##################
 
@@ -48,6 +52,8 @@ resource "alicloud_vswitch" "vswitch" {
   availability_zone = "${element(split(", ", local.vpc_azs), count.index)}"
 }
 
+
+####################################
 # Create Management Security Group #
 ####################################
 
@@ -65,8 +71,9 @@ module "security-group" {
   
 }
 
-# Create VPN Gateway #
-######################
+########################
+## Create VPN Gateway ##
+########################
 
 module "vpn-gateway" {
 	source = "../../modules/vpn-gateway"
@@ -76,15 +83,18 @@ module "vpn-gateway" {
     vpc_cidr = "${var.vpc_cidr}"
 }
 
-# Create ssh key for admin servers #
-####################################
+######################################
+## Create ssh key for admin servers ##
+######################################
+
 
 resource "alicloud_key_pair" "key" {
     key_name = "ssh_key_admin_srv"
 }
 
-# Create Admin Workstation #
-############################
+#####################################################################
+## Create Admin Workstation for executing infra and app deployment ##
+#####################################################################
 
 resource "alicloud_instance" "mgmt-srv" {
   

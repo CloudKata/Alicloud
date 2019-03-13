@@ -1,4 +1,6 @@
-# RAM Users and Group
+###################################################################################################
+# Collect current cloud account id from data sources. Needed by ram role resource to add user arn #
+###################################################################################################
 
 data "alicloud_account" "current"{
 }
@@ -6,6 +8,10 @@ data "alicloud_account" "current"{
 output "current_account_id" {
   value = "${data.alicloud_account.current.id}"
 }
+
+##############################
+# Create RAM Users and Group #
+##############################
 
 module "ram-users" {
   source  = "kosztkas/ram-users/alicloud"
@@ -20,6 +26,12 @@ module "ram-users" {
   
 }
 
+
+####################################################
+# Attach permissions for resources in group policy #
+####################################################
+
+
 resource "alicloud_ram_group_policy_attachment" "attach" {
   policy_name = "ReadOnlyAccess"
   policy_type = "System"
@@ -28,8 +40,10 @@ resource "alicloud_ram_group_policy_attachment" "attach" {
 
 }
 
+#################################################################################################################################
+# Role Policy for cloud resource access. This one create an ecs instance role. To add other resources update var policy_action ##
+#################################################################################################################################
 
-#Create Service Role and Attach Custom Policy
 
 resource "alicloud_ram_role" "role" {
   name = "${var.role_name}"  

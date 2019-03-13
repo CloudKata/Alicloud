@@ -1,4 +1,6 @@
-# Collect Instance Types available in the vpc zone
+####################################################
+# Collect Instance Types available in the vpc zone #
+####################################################
 
 data "alicloud_instance_types" "default" {
   cpu_core_count = "${var.cpu_core_count}"
@@ -6,7 +8,10 @@ data "alicloud_instance_types" "default" {
   instance_type_family = "${var.instance_type_family}"
 }
 
-# Collect zone data
+#####################
+# Collect zone data #
+#####################
+
 
 data "alicloud_zones" main {
   available_resource_creation = "VSwitch"
@@ -14,13 +19,17 @@ data "alicloud_zones" main {
   network_type = "Vpc"
 }
 
-# Save zone names in local variable
+#####################################
+# Save zone names in local variable #
+#####################################
 
 locals {
   vpc_azs = "${data.alicloud_zones.main.zones.0.id}, ${data.alicloud_zones.main.zones.1.id}"
 }
 
-# Create Security Group for the instance
+##########################################
+# Create Security Group for the instance #
+##########################################
 
 module "security-group" {
   source = "alibaba/security-group/alicloud"
@@ -35,13 +44,17 @@ module "security-group" {
   port_ranges = "${var.port_ranges}"
 }
 
-# Create instance ssh key pair
+################################
+# Create instance ssh key pair #
+################################
 
 resource "alicloud_key_pair" "key" {
   key_name = "ssh_key_${var.app_prefix}"
 }
 
-# Create vswitch 
+##################
+# Create vswitch #
+##################
 
 resource "alicloud_vswitch" "vswitch" {
   count = "${length(var.vswitch_cidrs)}"
@@ -51,7 +64,10 @@ resource "alicloud_vswitch" "vswitch" {
   availability_zone = "${element(split(", ", local.vpc_azs), count.index)}"
 }
 
-# Create instance batch
+#########################
+# Create instance batch #
+#########################
+
 
 resource "alicloud_instance" "funding" {
   
@@ -70,7 +86,9 @@ resource "alicloud_instance" "funding" {
   role_name = "${var.role_name}"
 }
 
-# Create and Attach instances to service load balancer
+########################################################
+# Create and Attach instances to service load balancer #
+########################################################
 
 module "slb_funding" {
   source = "../../modules/slb"
@@ -78,13 +96,17 @@ module "slb_funding" {
   name = "slb-${var.app_prefix}"
 }
 
-#resource "alicloud_pvtz_zone_record" "pvtz_records" {
-#    
-#    zone_id = "${var.zone_id}"
-#    resource_record = "${module.slb_funding.slb_name}"
-#    type = "A"
-#    value = "${module.slb_funding.slb_address}"
-#    ttl = "86400"
-#}
+###########################################################
+# Add dns entry in private zone for service load balancer #
+###########################################################
+
+resource "alicloud_pvtz_zone_record" "pvtz_records" {
+   
+    zone_id = "${var.zone_id}"
+    resource_record = "${module.slb_funding.slb_name}"
+    type = "A"
+    value = "${module.slb_funding.slb_address}"
+    ttl = "86400"
+}
 
 

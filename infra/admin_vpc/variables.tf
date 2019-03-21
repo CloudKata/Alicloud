@@ -1,7 +1,7 @@
 # VPC Variables
 
 variable "vpc_name" {
-	default = "admin-vpc"
+	default = "vpc_admin"
 }
 variable "vpc_cidr" {
 	default = "10.10.0.0/16"
@@ -29,6 +29,10 @@ variable "nexthop_ids" {
 
 variable "app_prefix" {
 	default = "admin"
+}
+
+variable "natgw_spec" {
+	default = "Small"
 }
 
 #Security Group Variables

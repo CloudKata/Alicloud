@@ -1,7 +1,5 @@
 variable "vpc_id" {}
 
-variable "security_group_id" {}
-
 variable "ssl_vpn_ip_pool" {}
 
 variable "vpc_cidr" {}

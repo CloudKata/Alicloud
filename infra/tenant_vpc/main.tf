@@ -14,6 +14,6 @@ module "funding" {
 	source = "../../roles/funding"
     
 	vpc_id = "${module.vpc.vpc_id}"
-   role_name = "instance-role"
-  zone_id = "${var.zone_id}"
+    role_name = "${var.role_name}"
+ #  zone_id = "${var.zone_id}"
 }

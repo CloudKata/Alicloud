@@ -10,6 +10,26 @@ variable "availability_zones" {
 	default = ["ap-southeast-5a", "ap-southeast-5b"]
 }
 
+
+variable "cpu_core_count" {
+	default = 1
+}
+variable "memory_size" {
+	default = 0.5
+}
+variable "instance_type_family" {
+	default = "ecs.t5"
+}
+
 variable "role_name" {}
 
-#variable "zone_id" {}
+#variable "pvtz_zone_id" {}
+
+variable "app_prefix" {
+	default = "funding"
+}
+
+variable "natgw_spec" {
+	default = "Small"
+}
+variable "cen_instance_id" {}

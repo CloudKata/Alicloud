@@ -1,7 +1,10 @@
-variable "instances" {
-	default = []
+variable "name" {
+	default = ""
 }
 
-variable "name" {
-	default = "slb-int"
+variable "vswitch_id" {}
+
+variable "instance_ids" {
+	description = "List of instances ID to place in the SLB pool"
+    type = "list"
 }

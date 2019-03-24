@@ -1,3 +1,3 @@
 variable "domain_name" {
-	default = ""
+	default = "example.com"
 }

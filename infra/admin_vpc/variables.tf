@@ -62,3 +62,5 @@ variable "ssl_vpn_ip_pool" {
 	default = "192.168.100.0/24"
 }
 
+variable "cen_instance_id" {}
+

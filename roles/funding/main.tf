@@ -3,8 +3,8 @@
 ####################################################
 
 data "alicloud_instance_types" "default" {
-  cpu_core_count = "${var.cpu_core_count}"
-  memory_size    = "${var.memory_size}"
+  cpu_core_count       = "${var.cpu_core_count}"
+  memory_size          = "${var.memory_size}"
   instance_type_family = "${var.instance_type_family}"
 }
 
@@ -12,11 +12,10 @@ data "alicloud_instance_types" "default" {
 # Collect zone data #
 #####################
 
-
 data "alicloud_zones" main {
   available_resource_creation = "VSwitch"
-  multi = true
-  network_type = "Vpc"
+  multi                       = true
+  network_type                = "Vpc"
 }
 
 #####################################
@@ -31,17 +30,21 @@ locals {
 # Create Security Group for the instance #
 ##########################################
 
-module "security-group" {
-  source = "alibaba/security-group/alicloud"
-
+resource "alicloud_security_group" "default" {
+  name   = "${var.app_prefix}"
   vpc_id = "${var.vpc_id}"
-  group_name = "${var.app_prefix}"
+}
 
-  rule_directions = ["ingress"]
-  ip_protocols = ["tcp", "tcp", "tcp"]
-  policies = ["accept", "accept"]
-  priorities = [1, 2]
-  port_ranges = "${var.port_ranges}"
+resource "alicloud_security_group_rule" "allow_all_tcp" {
+  count             = "${length(var.ingress_ips) * length(var.port_ranges)}"
+  type              = "${element(var.rule_directions, count.index)}"
+  ip_protocol       = "${element(var.ip_protocols, count.index)}"
+  nic_type          = "intranet"
+  policy            = "${element(var.policies, count.index)}"
+  port_range        = "${element(var.port_ranges, count.index)}"
+  priority          = "${element(var.priorities, count.index)}"
+  security_group_id = "${alicloud_security_group.default.id}"
+  cidr_ip           = "${element(var.ingress_ips, count.index)}"
 }
 
 ################################
@@ -50,6 +53,7 @@ module "security-group" {
 
 resource "alicloud_key_pair" "key" {
   key_name = "ssh_key_${var.app_prefix}"
+  key_file = "${var.app_prefix}_ssh_key.pem"
 }
 
 ##################
@@ -57,10 +61,10 @@ resource "alicloud_key_pair" "key" {
 ##################
 
 resource "alicloud_vswitch" "vswitch" {
-  count = "${length(var.vswitch_cidrs)}"
-  vpc_id = "${var.vpc_id}"
-  name = "${format("vsw-%s-%02d", var.app_prefix, count.index + 1)}"
-  cidr_block = "${var.vswitch_cidrs[count.index]}"
+  count             = "${length(var.vswitch_cidrs)}"
+  vpc_id            = "${var.vpc_id}"
+  name              = "${format("vsw-%s-%02d", var.app_prefix, count.index + 1)}"
+  cidr_block        = "${var.vswitch_cidrs[count.index]}"
   availability_zone = "${element(split(", ", local.vpc_azs), count.index)}"
 }
 
@@ -68,22 +72,28 @@ resource "alicloud_vswitch" "vswitch" {
 # Create instance batch #
 #########################
 
-
 resource "alicloud_instance" "funding" {
-  
-  count = "${length(data.alicloud_zones.main.zones)}"
-  security_groups = ["${module.security-group.security_group_id}"]
-  
+  count           = "${length(data.alicloud_zones.main.zones)}"
+  security_groups = ["${alicloud_security_group.default.id}"]
+
   vswitch_id = "${alicloud_vswitch.vswitch.*.id[count.index]}"
 
   instance_name = "${format("srv-%s-%02d", var.app_prefix, count.index + 1)}"
   instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
-  host_name = "${format("srv-%s-%02d", var.app_prefix, count.index + 1)}"
-  image_id = "${var.image_id}"
-  
-  internet_max_bandwidth_out = 10
-  key_name = "${alicloud_key_pair.key.key_name}"
+  host_name     = "${format("srv-%s-%02d", var.app_prefix, count.index + 1)}"
+  image_id      = "${var.image_id}"
+
+  key_name  = "${alicloud_key_pair.key.key_name}"
   role_name = "${var.role_name}"
+}
+
+## Add SNAT Entry ##
+
+resource "alicloud_snat_entry" "snat" {
+  count             = "${length(data.alicloud_zones.main.zones)}"
+  snat_table_id     = "${var.snat_table_id}"
+  source_vswitch_id = "${alicloud_vswitch.vswitch.*.id[count.index]}"
+  snat_ip           = "${var.snat_ip}"
 }
 
 ########################################################
@@ -91,22 +101,23 @@ resource "alicloud_instance" "funding" {
 ########################################################
 
 module "slb_funding" {
-  source = "../../modules/slb"
-  instances = "${alicloud_instance.funding.*.id}"
-  name = "slb-${var.app_prefix}"
+  source       = "../../modules/slb"
+  instance_ids = ["${alicloud_instance.funding.*.id}"]
+  vswitch_id   = "${alicloud_vswitch.vswitch.0.id}"
+  name         = "slb-${var.app_prefix}"
 }
 
 ###########################################################
 # Add dns entry in private zone for service load balancer #
 ###########################################################
 
+
 #resource "alicloud_pvtz_zone_record" "pvtz_records" {
 #   
-#    zone_id = "${var.zone_id}"
-#   resource_record = "${module.slb_funding.slb_name}"
+#    zone_id = "${var.pvtz_zone_id}"
+#    resource_record = "${module.slb_funding.slb_name}"
 #    type = "A"
 #    value = "${module.slb_funding.slb_address}"
 #    ttl = "86400"
 #}
-
 

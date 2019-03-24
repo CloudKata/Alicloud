@@ -1,14 +1,17 @@
-module "slb" {
-     source = "alibaba/slb/alicloud"
-     internal = true
-     bandwidth = 5
-     spec = "slb.s1.small"
-     instances = "${var.instances}"
-     name = "${var.name}"
-  }
+resource "alicloud_slb" "service" {
+  name                 = "${var.name}"
+  specification = "slb.s1.small"
+  vswitch_id = "${var.vswitch_id}"
+}
+
+resource "alicloud_slb_attachment" "default" {
+  load_balancer_id    = "${alicloud_slb.service.id}"
+  instance_ids = ["${var.instance_ids}"]
+  
+}
 
 resource "alicloud_slb_acl" "acl" {
-  name = "${module.slb.this_slb_name}-acl"
+  name = "${var.name}-acl"
   ip_version = "ipv4"
   entry_list = [
     {
@@ -25,7 +28,7 @@ resource "alicloud_slb_acl" "acl" {
 }
 
 resource "alicloud_slb_listener" "http" {
-  load_balancer_id = "${module.slb.this_slb_id}"
+  load_balancer_id = "${alicloud_slb.service.id}"
   backend_port = 80
   frontend_port = 80
   bandwidth = 10
@@ -42,7 +45,7 @@ resource "alicloud_slb_listener" "http" {
 }
 
 resource "alicloud_slb_listener" "tcp" {
-  load_balancer_id = "${module.slb.this_slb_id}"
+  load_balancer_id = "${alicloud_slb.service.id}"
   backend_port = "22"
   frontend_port = "22"
   protocol = "tcp"

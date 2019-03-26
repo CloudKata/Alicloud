@@ -35,13 +35,25 @@ resource "alicloud_security_group" "default" {
   vpc_id = "${var.vpc_id}"
 }
 
-resource "alicloud_security_group_rule" "allow_all_tcp" {
-  count             = "${length(var.ingress_ips) * length(var.port_ranges)}"
+resource "alicloud_security_group_rule" "allow_http" {
+  count             = "${length(var.ingress_ips)}"
   type              = "${element(var.rule_directions, count.index)}"
   ip_protocol       = "${element(var.ip_protocols, count.index)}"
   nic_type          = "intranet"
   policy            = "${element(var.policies, count.index)}"
-  port_range        = "${element(var.port_ranges, count.index)}"
+  port_range        = "${element(var.port_ranges_http, count.index)}"
+  priority          = "${element(var.priorities, count.index)}"
+  security_group_id = "${alicloud_security_group.default.id}"
+  cidr_ip           = "${element(var.ingress_ips, count.index)}"
+}
+
+resource "alicloud_security_group_rule" "allow_ssh" {
+  count             = "${length(var.ingress_ips)}"
+  type              = "${element(var.rule_directions, count.index)}"
+  ip_protocol       = "${element(var.ip_protocols, count.index)}"
+  nic_type          = "intranet"
+  policy            = "${element(var.policies, count.index)}"
+  port_range        = "${element(var.port_ranges_ssh, count.index)}"
   priority          = "${element(var.priorities, count.index)}"
   security_group_id = "${alicloud_security_group.default.id}"
   cidr_ip           = "${element(var.ingress_ips, count.index)}"

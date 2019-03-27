@@ -1,21 +1,3 @@
-###################################################################################################################
-# Public and private DNS setup. Private Zone service should be enabled first in alicloud account from web console #
-###################################################################################################################
-
-#module "dns-public" {
-# source = "infra/dns-public"
-#}
-
-#resource "alicloud_pvtz_zone" "zone" {
-#   name = "example.int"
-#}
-
-#resource "alicloud_pvtz_zone_attachment" "zone-attachment" {
-#    zone_id = "${alicloud_pvtz_zone.zone.id}"
-#    vpc_ids = ["${module.setup_admin_vpc.vpc_id}", "${module.setup_tenant_vpc.vpc_id}"]
-#    depends_on = [ "module.setup_admin_vpc", "module.setup_tenant_vpc" ]
-#}
-
 resource "alicloud_cen_instance" "cen" {
   name        = "vpc-peer"
   description = "Private Network Between VPCs"

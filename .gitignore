@@ -26,3 +26,4 @@ Alicloud_Support
 *.pem
 *rsa
 *.pub
+secrets.tf

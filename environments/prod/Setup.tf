@@ -25,7 +25,6 @@ module "admin_vpc" {
 module "tenant_vpc" {
   source = "tenant_vpc"
 
-  # pvtz_zone_id = "${alicloud_pvtz_zone.zone.id}"
   role_name       = "${module.ram.role_name}"
   cen_instance_id = "${alicloud_cen_instance.cen.id}"
 }

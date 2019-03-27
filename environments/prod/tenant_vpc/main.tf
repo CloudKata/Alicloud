@@ -46,6 +46,4 @@ module "funding" {
   role_name     = "${var.role_name}"
   snat_table_id = "${alicloud_nat_gateway.nat_gateway.snat_table_ids}"
   snat_ip       = "${alicloud_eip.eip.ip_address}"
-
-  #   pvtz_zone_id = "${var.pvtz_zone_id}"
 }

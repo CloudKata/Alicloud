@@ -118,18 +118,3 @@ module "slb_funding" {
   vswitch_id   = "${alicloud_vswitch.vswitch.0.id}"
   name         = "slb-${var.app_prefix}"
 }
-
-###########################################################
-# Add dns entry in private zone for service load balancer #
-###########################################################
-
-
-#resource "alicloud_pvtz_zone_record" "pvtz_records" {
-#   
-#    zone_id = "${var.pvtz_zone_id}"
-#    resource_record = "${module.slb_funding.slb_name}"
-#    type = "A"
-#    value = "${module.slb_funding.slb_address}"
-#    ttl = "86400"
-#}
-

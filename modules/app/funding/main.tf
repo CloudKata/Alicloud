@@ -113,7 +113,7 @@ resource "alicloud_snat_entry" "snat" {
 ########################################################
 
 module "slb_funding" {
-  source       = "../../modules/slb"
+  source       = "../../../modules/slb"
   instance_ids = ["${alicloud_instance.funding.*.id}"]
   vswitch_id   = "${alicloud_vswitch.vswitch.0.id}"
   name         = "slb-${var.app_prefix}"

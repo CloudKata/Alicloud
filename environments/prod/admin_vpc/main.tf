@@ -104,7 +104,7 @@ module "security-group" {
 ########################
 
 module "vpn-gateway" {
-  source          = "../../modules/vpn-gateway"
+  source          = "../../../modules/vpn-gateway"
   vpc_id          = "${alicloud_vpc.vpc.id}"
   ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
   vpc_cidr        = "${var.vpc_cidr}"

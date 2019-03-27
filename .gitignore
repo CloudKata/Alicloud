@@ -21,3 +21,8 @@ base_variables.tf
 
 ## Misc
 Alicloud_Support
+
+## Keys
+*.pem
+*rsa
+*.pub

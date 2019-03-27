@@ -40,7 +40,7 @@ resource "alicloud_eip_association" "eip_asso" {
 ############################
 
 module "funding" {
-  source = "../../roles/funding"
+  source = "../../../modules/app/funding"
 
   vpc_id        = "${alicloud_vpc.vpc.id}"
   role_name     = "${var.role_name}"

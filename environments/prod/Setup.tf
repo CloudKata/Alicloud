@@ -8,9 +8,7 @@ resource "alicloud_cen_instance" "cen" {
 #####################################################################################################
 
 module "ram" {
-  source              = "../../modules/ram"
-  alicloud_access_key = "${var.alicloud_access_key}"
-  alicloud_secret_key = "${var.alicloud_secret_key}"
+  source = "../../modules/ram"
 }
 
 ##################################################################################

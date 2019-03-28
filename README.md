@@ -16,7 +16,7 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 	
 	├── Cloud_EOD.jpg
 	├── README.md
-	├── environments
+	├── environments 
 	│   └── prod
 	│       ├── Setup.tf
 	│       ├── admin_vpc
@@ -28,7 +28,7 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 	│           ├── main.tf
 	│           ├── output.tf
 	│           └── variables.tf
-	├── modules
+	├── modules 
 	│   ├── app
 	│   │   └── funding
 	│   │       ├── main.tf
@@ -48,7 +48,8 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 	│   └── vpn-gateway
 	│       ├── ssl-vpn.tf
 	│       └── variables.tf
-	├── provider.tf
+	├── provider.tf => Contains provider specific information.
+		
 
 
 

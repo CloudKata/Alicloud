@@ -1,3 +1,9 @@
+provider "alicloud" {}
+
+#################################
+## VPC to VPC peering with CEN ##
+#################################
+
 resource "alicloud_cen_instance" "cen" {
   name        = "vpc-peer"
   description = "Private Network Between VPCs"
@@ -8,7 +14,7 @@ resource "alicloud_cen_instance" "cen" {
 #####################################################################################################
 
 module "ram" {
-  source = "../../modules/ram"
+  source = "../../modules/infra/ram"
 }
 
 ##################################################################################
@@ -16,13 +22,15 @@ module "ram" {
 ##################################################################################
 
 module "admin_vpc" {
-  source          = "admin_vpc"
+  source = "admin_vpc"
+
   cen_instance_id = "${alicloud_cen_instance.cen.id}"
 }
 
 module "tenant_vpc" {
   source = "tenant_vpc"
 
-  role_name       = "${module.ram.role_name}"
+  role_name = "${module.ram.role_name}"
+
   cen_instance_id = "${alicloud_cen_instance.cen.id}"
 }

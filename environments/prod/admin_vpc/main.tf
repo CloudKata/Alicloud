@@ -51,10 +51,6 @@ resource "alicloud_nat_gateway" "nat_gateway" {
   vpc_id        = "${alicloud_vpc.vpc.id}"
   specification = "${var.natgw_spec}"
   name          = "${var.vpc_name}-natgw"
-
-  depends_on = [
-    "alicloud_vswitch.vswitch",
-  ]
 }
 
 resource "alicloud_eip" "eip" {}
@@ -104,7 +100,7 @@ module "security-group" {
 ########################
 
 module "vpn-gateway" {
-  source          = "../../../modules/vpn-gateway"
+  source          = "../../../modules/infra/vpn-gateway"
   vpc_id          = "${alicloud_vpc.vpc.id}"
   ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
   vpc_cidr        = "${var.vpc_cidr}"

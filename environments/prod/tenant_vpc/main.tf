@@ -15,7 +15,7 @@ resource "alicloud_cen_instance_attachment" "attach" {
   instance_id              = "${var.cen_instance_id}"
   child_instance_id        = "${alicloud_vpc.vpc.id}"
   child_instance_region_id = "${data.alicloud_regions.current.regions.0.id}"
-  depends_on               = ["alicloud_vpc.vpc", "module.funding"]
+  depends_on               = ["module.funding"]
 }
 
 #################################################

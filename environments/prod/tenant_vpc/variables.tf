@@ -1,5 +1,5 @@
-variable "vpc_name" {
-  default = "vpc_tenant1"
+variable "tenant_prefix" {
+  default = "tenant1"
 }
 
 variable "vpc_cidr" {
@@ -24,7 +24,7 @@ variable "instance_type_family" {
 
 variable "role_name" {}
 
-#variable "pvtz_zone_id" {}
+variable "pvtz_zone_id" {}
 
 variable "app_prefix" {
   default = "funding"

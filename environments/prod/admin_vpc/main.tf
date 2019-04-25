@@ -18,6 +18,10 @@ data "alicloud_zones" "main" {
   network_type                = "Vpc"
 }
 
+data "alicloud_regions" "current" {
+  current = true
+}
+
 # Save zone names in local variable
 
 locals {
@@ -29,41 +33,8 @@ locals {
 ###########################
 
 resource "alicloud_vpc" "vpc" {
-  name       = "${var.vpc_name}"
+  name       = "${var.vpc_prefix}-vpc"
   cidr_block = "${var.vpc_cidr}"
-}
-
-data "alicloud_regions" "current" {
-  current = true
-}
-
-resource "alicloud_cen_instance_attachment" "attach" {
-  instance_id              = "${var.cen_instance_id}"
-  child_instance_id        = "${alicloud_vpc.vpc.id}"
-  child_instance_region_id = "${data.alicloud_regions.current.regions.0.id}"
-}
-
-#################################################
-## Add NAT Gateway for ougoing internet access ##
-#################################################
-
-resource "alicloud_nat_gateway" "nat_gateway" {
-  vpc_id        = "${alicloud_vpc.vpc.id}"
-  specification = "${var.natgw_spec}"
-  name          = "${var.vpc_name}-natgw"
-}
-
-resource "alicloud_eip" "eip" {}
-
-resource "alicloud_eip_association" "eip_asso" {
-  allocation_id = "${alicloud_eip.eip.id}"
-  instance_id   = "${alicloud_nat_gateway.nat_gateway.id}"
-}
-
-resource "alicloud_snat_entry" "snat" {
-  snat_table_id     = "${alicloud_nat_gateway.nat_gateway.snat_table_ids}"
-  source_vswitch_id = "${alicloud_vswitch.vswitch.id}"
-  snat_ip           = "${alicloud_eip.eip.ip_address}"
 }
 
 ####################
@@ -73,10 +44,11 @@ resource "alicloud_snat_entry" "snat" {
 resource "alicloud_vswitch" "vswitch" {
   count             = "${length(var.vswitch_cidrs)}"
   vpc_id            = "${alicloud_vpc.vpc.id}"
-  name              = "${format("vsw-%s-%02d", var.vpc_name, count.index + 1)}"
+  name              = "${format("vsw-%s-%02d", var.vpc_prefix, count.index + 1)}"
   cidr_block        = "${var.vswitch_cidrs[count.index]}"
   availability_zone = "${element(split(", ", local.vpc_azs), count.index)}"
 }
+
 
 ######################################
 ## Create Management Security Group ##
@@ -86,24 +58,13 @@ module "security-group" {
   source = "alibaba/security-group/alicloud"
 
   vpc_id          = "${alicloud_vpc.vpc.id}"
-  group_name      = "sg-${var.vpc_name}"
+  group_name      = "sg-${var.vpc_prefix}"
   rule_directions = ["ingress"]
   ip_protocols    = ["tcp", "tcp", "tcp"]
   policies        = ["accept", "accept"]
   port_ranges     = "${var.sg_port_ranges}"
   priorities      = [1, 2]
   cidr_ips        = ["${var.vswitch_cidrs}", "${var.ssl_vpn_ip_pool}"]
-}
-
-########################
-## Create VPN Gateway ##
-########################
-
-module "vpn-gateway" {
-  source          = "../../../modules/infra/vpn-gateway"
-  vpc_id          = "${alicloud_vpc.vpc.id}"
-  ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
-  vpc_cidr        = "${var.vpc_cidr}"
 }
 
 ######################################
@@ -131,4 +92,62 @@ resource "alicloud_instance" "mgmt-srv" {
   image_id      = "${var.image_id}"
 
   key_name = "${alicloud_key_pair.key.key_name}"
+}
+
+#################################################
+## Add NAT Gateway for ougoing internet access ##
+#################################################
+
+resource "alicloud_nat_gateway" "nat_gateway" {
+  vpc_id        = "${alicloud_vpc.vpc.id}"
+  specification = "${var.natgw_spec}"
+  name          = "${var.vpc_prefix}-natgw"
+}
+
+resource "alicloud_eip" "eip" {}
+
+resource "alicloud_eip_association" "eip_asso" {
+  allocation_id = "${alicloud_eip.eip.id}"
+  instance_id   = "${alicloud_nat_gateway.nat_gateway.id}"
+}
+
+resource "alicloud_snat_entry" "snat" {
+  snat_table_id     = "${alicloud_nat_gateway.nat_gateway.snat_table_ids}"
+  source_vswitch_id = "${alicloud_vswitch.vswitch.id}"
+  snat_ip           = "${alicloud_eip.eip.ip_address}"
+}
+
+
+########################
+## Create VPN Gateway ##
+########################
+
+module "vpn-gateway" {
+  source          = "../../../modules/infra/vpn-gateway"
+  vpc_id          = "${alicloud_vpc.vpc.id}"
+  ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
+  vpc_cidr        = "${var.vpc_cidr}"
+}
+
+################################
+## ADD VPC to CEN for peering ##
+################################
+
+resource "alicloud_cen_instance_attachment" "attach" {
+  instance_id              = "${var.cen_instance_id}"
+  child_instance_id        = "${alicloud_vpc.vpc.id}"
+  child_instance_region_id = "${data.alicloud_regions.current.regions.0.id}"
+  depends_on               = ["alicloud_vpc.vpc"]
+}
+
+## Private DNS Record and Zone attachment
+
+resource "alicloud_pvtz_zone_record" "pvtz_records" {
+   
+    zone_id = "${var.pvtz_zone_id}"
+    resource_record = "${alicloud_instance.mgmt-srv.host_name}"
+    type = "A"
+    value = "${alicloud_instance.mgmt-srv.private_ip}"
+    ttl = "86400"
+    depends_on = ["alicloud_instance.mgmt-srv"]
 }

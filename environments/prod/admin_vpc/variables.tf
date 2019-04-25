@@ -1,7 +1,7 @@
 # VPC Variables
 
-variable "vpc_name" {
-  default = "vpc_admin"
+variable "vpc_prefix" {
+  default = "admin"
 }
 
 variable "vpc_cidr" {
@@ -65,3 +65,5 @@ variable "ssl_vpn_ip_pool" {
 }
 
 variable "cen_instance_id" {}
+
+variable "pvtz_zone_id" {}

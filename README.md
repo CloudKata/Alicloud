@@ -12,45 +12,35 @@ Terraform modules for provisoning infrastructure & environment on demand on publ
 
 ## Directory Structure
 
-
-	
-	├── Cloud_EOD.jpg
-	├── README.md
-	├── environments 
+	├── environments
 	│   └── prod
-	│       ├── Setup.tf
 	│       ├── admin_vpc
-	│       │   ├── main.tf
-	│       │   ├── output.tf
-	│       │   └── variables.tf
-	│       ├── secret.tf
-	│       └── tenant_vpc
-	│           ├── main.tf
-	│           ├── output.tf
-	│           └── variables.tf
-	├── modules 
+	│       ├── main.tf
+	│       ├── tenant_vpc
+	|
+	├── modules
 	│   ├── app
 	│   │   └── funding
-	│   │       ├── main.tf
-	│   │       ├── output.tf
-	│   │       └── variables.tf
-	│   ├── dns-public
-	│   │   ├── main.tf
-	│   │   └── variables.tf
-	│   ├── ram
-	│   │   ├── main.tf
-	│   │   ├── output.tf
-	│   │   └── variables.tf
-	│   ├── slb
-	│   │   ├── main.tf
-	│   │   ├── output.tf
-	│   │   └── variables.tf
-	│   └── vpn-gateway
-	│       ├── ssl-vpn.tf
-	│       └── variables.tf
-	├── provider.tf => Contains provider specific information.
-		
+	│   └── infra
+	│       ├── dns-public
+	│       ├── private-dns
+	│       ├── ram
+	│       ├── slb
+	│       └── vpn-gateway
 
+
+## Environment Setup
+
+To setup complete production infrastructure 
+
+	$ cd environments/prod
+	$ terraform init
+	$ terraform plan
+	$ terraform apply
+
+## Issues
+ 
+Terraform apply might fail at the first run due to vpcs not being available to private zones. Inorder to fix it rerun the setup.
 
 
 ## Sample Infrastructure Design

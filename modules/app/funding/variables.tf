@@ -1,6 +1,6 @@
 variable "vpc_id" {}
 
-#variable "pvtz_zone_id" {}
+variable "pvtz_zone_id" {}
 
 variable "app_prefix" {
   default = "funding"
@@ -26,7 +26,9 @@ variable "instance_type_family" {
   default = "ecs.t5"
 }
 
-variable "role_name" {}
+variable "role_name" {
+  default = "instance-role"
+}
 
 variable "image_id" {
   default = "m-k1aimr39v8k6onvoxmhz"
@@ -65,4 +67,9 @@ variable "ip_protocols" {
 
 variable "policies" {
   default = ["accept"]
+}
+
+variable "password" {
+  description = "default password"
+  default     = "P@ssw0rd"
 }

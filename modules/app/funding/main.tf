@@ -12,10 +12,14 @@ data "alicloud_instance_types" "default" {
 # Collect zone data #
 #####################
 
-data "alicloud_zones" main {
+data "alicloud_zones" "main" {
   available_resource_creation = "VSwitch"
   multi                       = true
   network_type                = "Vpc"
+}
+
+data "alicloud_regions" "current_region_ds" {
+  current = true
 }
 
 #####################################
@@ -97,6 +101,7 @@ resource "alicloud_instance" "funding" {
 
   key_name  = "${alicloud_key_pair.key.key_name}"
   role_name = "${var.role_name}"
+  password = "${var.password}"
 }
 
 ## Add SNAT Entry ##
@@ -118,3 +123,34 @@ module "slb_funding" {
   vswitch_id   = "${alicloud_vswitch.vswitch.0.id}"
   name         = "slb-${var.app_prefix}"
 }
+
+###########################################################
+# Add dns entry in private zone for service load balancer #
+###########################################################
+
+
+resource "alicloud_pvtz_zone_record" "pvtz_records" {
+   
+    zone_id = "${var.pvtz_zone_id}"
+    resource_record = "tenant1-${module.slb_funding.slb_name}"
+    type = "A"
+    value = "${module.slb_funding.slb_address}"
+    ttl = "86400"
+}
+
+
+## Deploy App
+
+#  provisioner "remote-exec" {
+#    inline = ["sudo dnf -y install python"]
+
+#    connection {
+#      type        = "ssh"
+#      user        = "root"
+#      private_key = "${alicloud_key_pair.key.key_name}"
+#   }
+# }
+
+#  provisioner "local-exec" {
+#    command = "ansible-playbook -u root -i '${alicloud_instance.funding.private_ip},' --private-key ${alicloud_key_pair.key.key_name} provision.yml" 
+# }

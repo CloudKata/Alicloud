@@ -33,5 +33,3 @@ variable "app_prefix" {
 variable "natgw_spec" {
   default = "Small"
 }
-
-variable "cen_instance_id" {}

@@ -9,11 +9,8 @@ resource "alicloud_cen_instance" "cen" {
   description = "Private Network Between VPCs"
 }
 
-module "private-dns" {
-  source = "../../modules/infra/private-dns"
-  need_attachment = true
-  vpc_id_list = ["${module.admin_vpc.vpc_id}", "${module.tenant_vpc.vpc_id}"]
-  
+resource "alicloud_pvtz_zone" "internal" {
+    name = "domain.internal"
 }
 
 #####################################################################################################
@@ -28,16 +25,24 @@ module "ram" {
 # Modules to setup VPCs for administrative services and client specific services #
 ##################################################################################
 
-module "admin_vpc" {
-  source          = "admin_vpc"
-  cen_instance_id = "${alicloud_cen_instance.cen.id}"
-  pvtz_zone_id = "${module.private-dns.pvtz_zone_id}"
+module "setup_admin_vpc" {
+  source          = "admin_setup"
+  pvtz_zone_id = "${alicloud_pvtz_zone.internal.id}"
 }
 
-module "tenant_vpc" {
-  source = "tenant_vpc"
-  pvtz_zone_id = "${module.private-dns.pvtz_zone_id}"
+module "setup_tenant1" {
+  source = "tenant1_setup"
+  pvtz_zone_id = "${alicloud_pvtz_zone.internal.id}"
   role_name = "${module.ram.role_name}"
-  cen_instance_id = "${alicloud_cen_instance.cen.id}"
 }
 
+##############################################
+# Associate CEN and Private Zone to the vpcs #
+##############################################
+
+variable "need_attachment" {}
+
+module "vpc_association" {
+  source = "../../modules/infra/vpc_association"
+  need_attachment = "${var.need_attachment}"
+}

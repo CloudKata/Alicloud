@@ -6,6 +6,6 @@ output "funding_server_ids" {
   value = "${alicloud_instance.funding.*.id}"
 }
 
-#output "funding_slb_id" {
-#  value = "${module.slb_funding.slb_id}"
-#}
+output "funding_dns_id" {
+	value = "${alicloud_pvtz_zone_record.pvtz_records.id}"
+}

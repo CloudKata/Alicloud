@@ -67,6 +67,18 @@ module "security-group" {
   cidr_ips        = ["${var.vswitch_cidrs}", "${var.ssl_vpn_ip_pool}"]
 }
 
+########################
+## Create VPN Gateway ##
+########################
+
+module "vpn-gateway" {
+  source          = "../../../modules/infra/vpn-gateway"
+  vpc_id          = "${alicloud_vpc.vpc.id}"
+  ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
+  vpc_cidr        = "${var.vpc_cidr}"
+}
+
+
 ######################################
 ## Create ssh key for admin servers ##
 ######################################
@@ -98,51 +110,30 @@ resource "alicloud_instance" "mgmt-srv" {
 ## Add NAT Gateway for ougoing internet access ##
 #################################################
 
-resource "alicloud_nat_gateway" "nat_gateway" {
+resource "alicloud_nat_gateway" "default" {
   vpc_id        = "${alicloud_vpc.vpc.id}"
   specification = "${var.natgw_spec}"
   name          = "${var.vpc_prefix}-natgw"
 }
 
-resource "alicloud_eip" "eip" {}
+resource "alicloud_eip" "eip" {
+  depends_on = ["alicloud_nat_gateway.default"]
+}
 
 resource "alicloud_eip_association" "eip_asso" {
   allocation_id = "${alicloud_eip.eip.id}"
-  instance_id   = "${alicloud_nat_gateway.nat_gateway.id}"
+  instance_id   = "${alicloud_nat_gateway.default.id}"
 }
 
 resource "alicloud_snat_entry" "snat" {
-  snat_table_id     = "${alicloud_nat_gateway.nat_gateway.snat_table_ids}"
+  snat_table_id     = "${alicloud_nat_gateway.default.snat_table_ids}"
   source_vswitch_id = "${alicloud_vswitch.vswitch.id}"
   snat_ip           = "${alicloud_eip.eip.ip_address}"
 }
 
-
-########################
-## Create VPN Gateway ##
-########################
-
-module "vpn-gateway" {
-  source          = "../../../modules/infra/vpn-gateway"
-  vpc_id          = "${alicloud_vpc.vpc.id}"
-  ssl_vpn_ip_pool = "${var.ssl_vpn_ip_pool}"
-  vpc_cidr        = "${var.vpc_cidr}"
-}
-
-################################
-## ADD VPC to CEN for peering ##
-################################
-
-resource "alicloud_cen_instance_attachment" "attach" {
-  instance_id              = "${var.cen_instance_id}"
-  child_instance_id        = "${alicloud_vpc.vpc.id}"
-  child_instance_region_id = "${data.alicloud_regions.current.regions.0.id}"
-  depends_on               = ["alicloud_vpc.vpc"]
-}
-
 ## Private DNS Record and Zone attachment
 
-resource "alicloud_pvtz_zone_record" "pvtz_records" {
+resource "alicloud_pvtz_zone_record" "a_name" {
    
     zone_id = "${var.pvtz_zone_id}"
     resource_record = "${alicloud_instance.mgmt-srv.host_name}"
@@ -151,3 +142,5 @@ resource "alicloud_pvtz_zone_record" "pvtz_records" {
     ttl = "86400"
     depends_on = ["alicloud_instance.mgmt-srv"]
 }
+
+

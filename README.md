@@ -2,15 +2,12 @@
 
 Terraform modules for provisoning infrastructure & environment on demand on public cloud platforms. 
 
-## Environment Setup
+## Description
 
-This setup will create 1 admin and 1 tenant vpcs as per the arhitecture diagram given below. Entire code is divided into two groups :
+The setup creates 2 vpcs (admin and tenant).
 
-1. **modules:** 
+It consists of custom modules to create infrastructure resources and application services as below:
 
-This includes modules specific to invidual infrastructure components and application modules.
-
-		├── modules
 		├── app
 		│   └── funding => Creates appservers with vswitch, security group , slb and dns entry   
 		│       
@@ -30,11 +27,7 @@ This includes modules specific to invidual infrastructure components and applica
 		    │     
 		    └── vpn-gateway => Creates VPN gateway along with ssl server and ssl client certs.      
            
-
-
-2. **environments:**  
-
-Theis has modules to bootstrap the complete production environment.
+And modules to bootstrap environments. Current setup will create a production environment with 1 vpc for hosting centralized shared admin services and 1 vpc for hosting tenant specific applications and services. The services hosted in the admin vpc will be governing the tenant vpcs. The layout goes as below: 
 
 		├── environments => Modules for provisioning infrastructure for centralised services and tenant environments. 
 			└── prod
@@ -44,16 +37,16 @@ Theis has modules to bootstrap the complete production environment.
 			    |  
 			    ├── run.tf => Bootstraps the infrastructure defined
 
-3. **Bootstrap Environments from Scratch:**
+## Bootstrap Environment:
 
-**_Variable Definition_**
+**Variable**
 
-need_attachment = true | false
-need_to_wait = true | false
+	need_attachment = true | false
 
-These variables are need to be defined to add wait time for the private dns zones and cen instances to be ready before the vpcs are associated with them.
 
-**_Run Setup_**
+This is needed to add wait time for the private dns zones and cen instances to be ready before the vpcs are associated with them.
+
+**Setup**
 
 		$ terraform init -var="need_attachment=true
 

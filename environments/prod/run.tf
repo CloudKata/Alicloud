@@ -13,6 +13,7 @@ resource "alicloud_pvtz_zone" "internal" {
     name = "domain.internal"
 }
 
+
 #####################################################################################################
 # Creating users & policies for cloud account access and roles & policies for cloud resource access #
 #####################################################################################################
@@ -25,12 +26,12 @@ module "ram" {
 # Modules to setup VPCs for administrative services and client specific services #
 ##################################################################################
 
-module "setup_admin_vpc" {
+module "admin_vpc" {
   source          = "admin_setup"
   pvtz_zone_id = "${alicloud_pvtz_zone.internal.id}"
 }
 
-module "setup_tenant1" {
+module "tenant1_vpc" {
   source = "tenant1_setup"
   pvtz_zone_id = "${alicloud_pvtz_zone.internal.id}"
   role_name = "${module.ram.role_name}"

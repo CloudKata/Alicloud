@@ -29,8 +29,8 @@ resource "alicloud_eip_association" "eip_asso" {
 ## Create funding service ##
 ############################
 
-module "funding" {
-  source = "../../../modules/app/funding"
+module "myapp1" {
+  source = "../../../modules/app/myapp1"
 
   vpc_id        = "${alicloud_vpc.vpc.id}"
   role_name     = "${var.role_name}"

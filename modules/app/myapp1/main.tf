@@ -88,7 +88,7 @@ resource "alicloud_vswitch" "vswitch" {
 # Create instance batch #
 #########################
 
-resource "alicloud_instance" "funding" {
+resource "alicloud_instance" "myapp1" {
   count           = "${length(data.alicloud_zones.main.zones)}"
   security_groups = ["${alicloud_security_group.default.id}"]
 
@@ -117,9 +117,9 @@ resource "alicloud_snat_entry" "snat" {
 # Create and Attach instances to service load balancer #
 ########################################################
 
-module "slb_funding" {
+module "slb_myapp1" {
   source       = "../../../modules/infra/slb"
-  instance_ids = ["${alicloud_instance.funding.*.id}"]
+  instance_ids = ["${alicloud_instance.myapp1.*.id}"]
   vswitch_id   = "${alicloud_vswitch.vswitch.0.id}"
   name         = "slb-${var.app_prefix}"
 }
@@ -132,9 +132,9 @@ module "slb_funding" {
 resource "alicloud_pvtz_zone_record" "pvtz_records" {
    
     zone_id = "${var.pvtz_zone_id}"
-    resource_record = "tenant1-${module.slb_funding.slb_name}"
+    resource_record = "tenant1-${module.slb_myapp1.slb_name}"
     type = "A"
-    value = "${module.slb_funding.slb_address}"
+    value = "${module.slb_myapp1.slb_address}"
     ttl = "86400"
 }
 
@@ -152,5 +152,5 @@ resource "alicloud_pvtz_zone_record" "pvtz_records" {
 # }
 
 #  provisioner "local-exec" {
-#    command = "ansible-playbook -u root -i '${alicloud_instance.funding.private_ip},' --private-key ${alicloud_key_pair.key.key_name} provision.yml" 
+#    command = "ansible-playbook -u root -i '${alicloud_instance.myapp1.private_ip},' --private-key ${alicloud_key_pair.key.key_name} provision.yml" 
 # }

@@ -4,6 +4,11 @@ variable "need_attachment" {
 	default     = "false"
 }
 
+variable "wait_time" {
+  description = "To control zone attachment of vpcs"
+  default     = "false"
+}
+
 data "alicloud_vpcs" "vpcs_ds"{
   status = "Available"
 }
@@ -24,7 +29,7 @@ resource "null_resource" "delay" {
   provisioner "local-exec" {
     command = "sleep 300"
   }
-  count   = "${var.need_attachment ? 1 : 0}"
+  count   = "${var.wait_time ? 1 : 0}"
 }
 
 #################################

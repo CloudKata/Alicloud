@@ -8,11 +8,13 @@ The setup creates 2 vpcs (admin and tenant).
 
 It consists of custom modules to create infrastructure resources and application services as below:
 
-	modules
-	    ├── app
-		│   └── funding => Creates appservers with vswitch, security group , slb and dns entry   
-		│       
-		└── infra
+	 modules
+	 ├── app
+	 │   └── myapp1
+	 │       ├── main.tf
+	 │       ├── output.tf
+	 │       └── variables.tf
+	 └── infra
 		    ├── dns-private-zone => Creates dns private zone and attaches vpcs
 		    │   
 		    │   
@@ -28,6 +30,7 @@ It consists of custom modules to create infrastructure resources and application
 		    │     
 		    └── vpn-gateway => Creates VPN gateway along with ssl server and ssl client certs.      
 	           
+
 And modules to bootstrap environments. Current setup will create a production environment with 1 vpc for hosting centralized shared admin services and 1 vpc for hosting tenant specific applications and services. The services hosted in the admin vpc will be governing the tenant vpcs. The layout goes as below: 
 
 	environments => Modules for provisioning infrastructure for centralised services and tenant environments. 

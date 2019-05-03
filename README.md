@@ -8,28 +8,29 @@ The setup creates 2 vpcs (admin and tenant).
 
 It consists of custom modules to create infrastructure resources and application services as below:
 
-	├── app
-	│   └── funding => Creates appservers with vswitch, security group , slb and dns entry   
-	│       
-	└── infra
-	    ├── dns-private-zone => Creates dns private zone and attaches vpcs
-	    │   
-	    │   
-	    ├── dns-public => Creates public dns 
-	    │   
-	    │   
-	    ├── ram => Creates ram users, groups , roles & pilicies
-	    │   
-	    │  
-	    ├── slb => Creates service load balancers and rules
-	    │      
-	    ├── vpc_association  => Associates vpcs to Cen instance for vpc-vpc peering and attaches vpcs to private dns zones
-	    │     
-	    └── vpn-gateway => Creates VPN gateway along with ssl server and ssl client certs.      
-           
+	modules
+	    ├── app
+		│   └── funding => Creates appservers with vswitch, security group , slb and dns entry   
+		│       
+		└── infra
+		    ├── dns-private-zone => Creates dns private zone and attaches vpcs
+		    │   
+		    │   
+		    ├── dns-public => Creates public dns 
+		    │   
+		    │   
+		    ├── ram => Creates ram users, groups , roles & pilicies
+		    │   
+		    │  
+		    ├── slb => Creates service load balancers and rules
+		    │      
+		    ├── vpc_association  => Associates vpcs to Cen instance for vpc-vpc peering and attaches vpcs to private dns zones
+		    │     
+		    └── vpn-gateway => Creates VPN gateway along with ssl server and ssl client certs.      
+	           
 And modules to bootstrap environments. Current setup will create a production environment with 1 vpc for hosting centralized shared admin services and 1 vpc for hosting tenant specific applications and services. The services hosted in the admin vpc will be governing the tenant vpcs. The layout goes as below: 
 
-	├── environments => Modules for provisioning infrastructure for centralised services and tenant environments. 
+	environments => Modules for provisioning infrastructure for centralised services and tenant environments. 
 		└── prod
 		    ├── admin_setup => Module to create admin vpc with centralised shared services, VPN gateway and NAT gateway
 		    │   
